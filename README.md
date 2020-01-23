@@ -25,7 +25,7 @@ things like validation struct tags.
 *  `go get github.com/favadi/protoc-go-inject-tag` or download the
   binaries from releases page.
 
-## Usage
+## Usage 
 
 Add a comment with syntax `// @inject_tag: custom_tag:"custom_value"`
 before fields to add custom tag to in .proto files.
@@ -41,6 +41,31 @@ package pb;
 message IP {
   // @inject_tag: valid:"ip"
   string Address = 1;
+}
+```
+
+Since oneof inner fields are managed differently by protoc we need a specific syntax for them:
+Add a comment for each sub fields that needs a tag, above the oneof declaration: `// @inject_tag_oneof: subfield_name: custom_tag:"custom_value"` 
+
+Note that any comment inside of oneof declaration disappear in the generate file by protoc.
+
+Example:
+
+```
+// file: test.proto
+// Will inject tag for Data, Foo and Bar
+syntax = "proto3";
+
+package pb;
+
+message IP {
+  // @inject_tag_oneof: Foo: validate:"required"
+  // @inject_tag_oneof: Bar: validate:"non-zero"
+  // @inject_tag: valid:"ip"
+  oneof data {
+    string Foo = 1;
+    uint32 Bar = 2;
+    string Baz = 3;
 }
 ```
 
